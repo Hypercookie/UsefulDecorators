@@ -1,7 +1,5 @@
 import weakref
 
-from usefull_decorators.functions import attach
-
 
 def Cache(cls):
     """
@@ -105,6 +103,18 @@ def builder_function(func):
 
 
 def Observable(func=None, attach=None):
+    """
+
+    Makes certain field observable fields. It expects a list of tuples as `attach`
+    keyword.
+    The first element of the tuple needs to be the name of the field to observe,
+    the second a function to call with a single parameter (the updated parameter)
+    The function will be called everytime a new value for the paremeter is set.
+
+    :param func:
+    :param attach:
+    :return:
+    """
     if not attach:
         attach = []
     if func:
@@ -136,10 +146,9 @@ class _Observable:
                 x[1](qa[1])
                 return r
 
-            def deletion(*qa, **qwa):
+            def deletion(*qa):
                 return qa[0].__delattr__("__" + x[0])
 
             q = property(fget=get, fset=set_v, fdel=deletion)
             setattr(self.cls, x[0], q)
-            # warpped_property = wrp()
         return self.obj
