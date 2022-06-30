@@ -2,7 +2,9 @@
 > Some Decorators I use for various purposes. Some more useful, some less.
 
 This is a collection of some Decorators for Python you might find useful.
-
+```
+pip install usefull-decorators
+```
 ## Programming Patterns
 
 ### Cache
