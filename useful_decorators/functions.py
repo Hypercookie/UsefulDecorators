@@ -1,3 +1,6 @@
+import functools
+
+
 def attach(func, *args, **kwargs):
     """
     Attaches another function after the function decorated with this is run.
@@ -6,6 +9,7 @@ def attach(func, *args, **kwargs):
     """
 
     def attach_c(f):
+        @functools.wraps(f)
         def attach_cc(*f1, **f2):
             res = f(*f1, **f2)
             func(*args, **kwargs)
@@ -24,6 +28,7 @@ def prepend(func, *args, **kwargs):
     """
 
     def prepend_c(f):
+        @functools.wraps(f)
         def prepend_cc(*f1, **f2):
             func(*args, **kwargs)
             return f(*f1, **f2)

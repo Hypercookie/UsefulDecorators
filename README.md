@@ -8,7 +8,12 @@ This is a collection of some Decorators for Python you might find useful.
 ### Cache
 The Cache Decorator will automatically cache the creation of an object of the decorated class. 
 ```py
-@Cache
+from useful_decorators.patterns import Cache
+
+def disable():
+    return True
+
+@Cache(disable=disable)
 class Test:
   def __init__(self,q,p=False):
     self.q = q
@@ -22,6 +27,7 @@ q3 = Test("test2") #This will create a new Object.
 On each call of an `__init__` method, 
 the cache will check if there ever was another call that used the same arguments, and if yes return that. If you really want a new Object ( ignore the cache )
 you can use `<class>.__create_no_cache()` with the arguments you would usally pass to the `__init__` method. You can also reset the cache with `<class>.__clear_cache()`
+You can also use the disable property of the decorator. This allows you to specify a function which is called to check if the cache is enabled or disabled.
 ```py
 Test.__create_no_cache("hello",True) #Always creates a new Object (will not be added to the cache)
 #or
@@ -34,6 +40,8 @@ something in `q1` will also change `q2`.
 The Singleton decorator will change the class to only ever create one instance. This is done by injecting code in the `__init__` method which checks if an 
 object of the class is already created. 
 ```py
+from useful_decorators.patterns import Singleton
+
 @Singleton(strict=False)
 class Test:
     def __init__(self, q, p=False):
@@ -62,6 +70,8 @@ Test.createNew("hi",True)
 ### Observable
 The Observable decorator allowes to to attach function calls to changes in the fields of the class.
 ```py
+from useful_decorators.patterns import Observable
+
 def changeling(q):
     print(q)
 
@@ -93,6 +103,8 @@ class Test:
 ```
 you can write
 ```py
+from useful_decorators.patterns import builder_function
+
 class Test:
     def __init__(self):
         self.q = None
@@ -108,6 +120,8 @@ This repo provides some decorators for functions in general.
 ### attach
 This decorator allowes you to attach another function to the decorated function.
 ```py
+from useful_decorators.functions import attach
+
 def attached(q=1):
   print("world"*q)
  
@@ -119,6 +133,8 @@ foo() # hello world
 ```
 You can also specify the arguments that shall be passed to the attached function like so
 ```py
+from useful_decorators.functions import attach
+
 def attached(q=1):
   print("world"*q)
  
@@ -134,6 +150,8 @@ this is _exactly_ the same as __attach__ but will execute the specified method _
 ### chain
 the chain decorator allowes for chaining functions together and feeding ones output in another ones input. 
 ```py
+from useful_decorators.functions import chain
+
 def q1(q,h=2):
   print(q*h)
 

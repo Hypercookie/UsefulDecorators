@@ -1,42 +1,53 @@
+import functools
 import weakref
 
 
-def Cache(cls):
-    """
-    If the class initialized with the same arguments in its init method a second time,
-    a cached version is returned. Creates two new class methods:
-    `cls.__clear_cache` which clears the current cache (note that the objects stay
-    intact)
-    `cls.__create_no_cache` creates an object and ignores the cache. (Can be used to
-    get a new object even if an old on is cached)
-    """
-    cls.__cache = weakref.WeakValueDictionary()
-
-    def __new_cache__(*args, **kwargs):
-        obj = cls.__cache.get(
-            args[1:] + tuple((x, kwargs[x]) for x in kwargs.keys()))
-        if obj is None:
-            obj = object.__new__(cls)
-            cls.__cache[
-                args[1:] + tuple((x, kwargs[x]) for x in kwargs.keys())] = obj
-            cls.__init__(*args, **kwargs)
-        return obj
-
-    def __clear_cache():
+def Cache(func=None, disable=None):
+    def _Cache(cls):
+        """
+        If the class initialized with the same arguments in its init method a second time,
+        a cached version is returned. Creates two new class methods:
+        `cls.__clear_cache` which clears the current cache (note that the objects stay
+        intact)
+        `cls.__create_no_cache` creates an object and ignores the cache. (Can be used to
+        get a new object even if an old on is cached)
+        """
         cls.__cache = weakref.WeakValueDictionary()
 
-    def __create_no_cache(*args, **kwargs):
-        obj = object.__new__(cls)
-        cls.__init__(obj, *args, **kwargs)
-        return obj
+        @functools.wraps(cls.__new__)
+        def __new_cache__(*args, **kwargs):
+            obj = cls.__cache.get(
+                args[1:] + tuple((x, kwargs[x]) for x in kwargs.keys()))
+            if obj is None or disable():
+                obj = object.__new__(cls)
+                cls.__cache[
+                    args[1:] + tuple((x, kwargs[x]) for x in kwargs.keys())] = obj
+                cls.__init__(*args, **kwargs)
+            return obj
 
-    cls.__new__ = __new_cache__
-    cls.__clear_cache = __clear_cache
-    cls.__nc = __create_no_cache
-    return cls
+        def __clear_cache():
+            cls.__cache = weakref.WeakValueDictionary()
+
+        def __create_no_cache(*args, **kwargs):
+            obj = object.__new__(cls)
+            cls.__init__(obj, *args, **kwargs)
+            return obj
+
+        cls.__new__ = __new_cache__
+        cls.__clear_cache = __clear_cache
+        cls.__nc = __create_no_cache
+        return cls
+
+    if func:
+        return _Cache(func)
+    else:
+        @functools.wraps(_Cache)
+        def wrap(f):
+            return _Cache(f)
+        return wrap
 
 
-def Singleton(strict=False):
+def Singleton(func=None, strict=False):
     """
     Makes this class only have a single Instance. Adds a `getInstance` method to the class.
     If raise_error is true, an error will be raised if the class is initialized again.
@@ -49,6 +60,7 @@ def Singleton(strict=False):
     def singleton(cls):
         cls.__instance = None
 
+        @functools.wraps(cls.__new__)
         def __new_singleton(*args, **kwargs):
             if cls.__instance and strict:
                 raise Exception(
@@ -86,7 +98,14 @@ def Singleton(strict=False):
         cls.createNew = createNew
         return cls
 
-    return singleton
+    if func:
+        return singleton(func)
+    else:
+        @functools.wraps(singleton)
+        def wrap(f):
+            return singleton(f)
+
+        return wrap
 
 
 def builder_function(func):
@@ -95,6 +114,7 @@ def builder_function(func):
     on non member methods. The return value of the original function is ignored.
     """
 
+    @functools.wraps(func)
     def wrap(*args, **kwargs):
         func(*args, **kwargs)
         return args[0]
