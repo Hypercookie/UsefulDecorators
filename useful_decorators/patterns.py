@@ -12,7 +12,7 @@ def Cache(func=None, disable=None):
         `cls.__create_no_cache` creates an object and ignores the cache. (Can be used to
         get a new object even if an old on is cached)
         """
-        cls.__cache = weakref.WeakValueDictionary()
+        cls.__cache = {}
 
         @functools.wraps(cls.__new__)
         def __new_cache__(*args, **kwargs):
@@ -26,7 +26,7 @@ def Cache(func=None, disable=None):
             return obj
 
         def __clear_cache():
-            cls.__cache = weakref.WeakValueDictionary()
+            cls.__cache = {}
 
         def __create_no_cache(*args, **kwargs):
             obj = object.__new__(cls)
