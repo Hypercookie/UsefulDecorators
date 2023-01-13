@@ -44,6 +44,7 @@ def Cache(func=None, disable=None):
         @functools.wraps(_Cache)
         def wrap(f):
             return _Cache(f)
+
         return wrap
 
 
@@ -172,3 +173,24 @@ class _Observable:
             q = property(fget=get, fset=set_v, fdel=deletion)
             setattr(self.cls, x[0], q)
         return self.obj
+
+
+def multi():
+    class regger:
+        mapper = {}
+
+        def register(self, *args, t=None):
+            def reg(func):
+                self.mapper[t] = func
+            return reg
+
+        def __init__(self, func):
+            regger.instance = self
+
+        def __call__(self, *args, **kwargs):
+            if type(args[0]) in self.mapper:
+                self.mapper[type(args[0])](args, kwargs)
+            else:
+                raise NotImplementedError(type(args[0]))
+
+    return regger

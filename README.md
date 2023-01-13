@@ -28,8 +28,8 @@ q3 = Test("test2") #This will create a new Object.
 
 On each call of an `__init__` method, 
 the cache will check if there ever was another call that used the same arguments, and if yes return that. If you really want a new Object ( ignore the cache )
-you can use `<class>.__create_no_cache()` with the arguments you would usally pass to the `__init__` method. You can also reset the cache with `<class>.__clear_cache()`
-You can also use the disable property of the decorator. This allows you to specify a function which is called to check if the cache is enabled or disabled.
+you can use `<class>.__create_no_cache()` with the arguments you would usually pass to the `__init__` method. You can also reset the cache with `<class>.__clear_cache()`
+You can also use the 'disable' property of the decorator. This allows you to specify a function which is called to check if the cache is enabled or disabled.
 ```py
 Test.__create_no_cache("hello",True) #Always creates a new Object (will not be added to the cache)
 #or
@@ -70,7 +70,7 @@ Test.createNew("hi",True)
 ```
 `createNew` is just a shortcut to reset and create at the same time.
 ### Observable
-The Observable decorator allowes to to attach function calls to changes in the fields of the class.
+The Observable decorator allows to attach function calls to changes in the fields of the class.
 ```py
 from useful_decorators.patterns import Observable
 
@@ -90,7 +90,7 @@ q1.q = "world" #changeling gets called with 'world'
 ```
 The decorator expects a list of tuples as the `attach` keyword. Each tuple must contain a name of a field in the class, and a method to call. 
 This method must take exactly ONE argument (the updated value).
-Currently there is no function call if the field gets deleted with `del`.
+Currently, there is no function call if the field gets deleted with `del`.
 ### builder_function
 The builder_function decorator is just a shortcut for a method returning the object it belongs to. So instead of
 ```py
@@ -116,11 +116,23 @@ class Test:
     def set_q(self,q):
         self.q = q
 ```
-This allowes for easy construction of Objects that can be used like this `obj.setx(x).create_q(q,v=True)....`
+This allows for easy construction of Objects that can be used like this `obj.setx(x).create_q(q,v=True)....`
 ## Functions
 This repo provides some decorators for functions in general.
+### infix
+This decorator allows you to make a function (which takes two arguments) into an infix operator.
+Your function name has to be surrounded by '|'.
+```py
+from useful_decorators.functions import infix
+@infix
+def test(q1, q2):
+    return q1 + 2 * q2
+
+
+print("Hello" | test | "World" | test | "1")
+```
 ### attach
-This decorator allowes you to attach another function to the decorated function.
+This decorator allows you to attach another function to the decorated function.
 ```py
 from useful_decorators.functions import attach
 
@@ -146,11 +158,11 @@ def foo():
  
 foo() # hello worldworld
 ```
-Of course you can attach multiple methods as well. Just add more `@attach` decorators.
+Of course, you can attach multiple methods as well. Just add more `@attach` decorators.
 ### prepend
 this is _exactly_ the same as __attach__ but will execute the specified method __before__ the original method.
 ### chain
-the chain decorator allowes for chaining functions together and feeding ones output in another ones input. 
+the chain decorator allows for chaining functions together and feeding ones output in another ones input. 
 ```py
 from useful_decorators.functions import chain
 

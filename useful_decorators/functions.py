@@ -1,6 +1,24 @@
 import functools
 
 
+class _GenericInfix:
+    def __init__(self, function):
+        self.function = function
+        self.first = None
+        self.second = None
+
+    def __or__(self, other):
+        return self.function(self.first, other)
+
+    def __ror__(self, other):
+        self.first = other
+        return self
+
+
+def infix(func):
+    return _GenericInfix(func)
+
+
 def attach(func, *args, **kwargs):
     """
     Attaches another function after the function decorated with this is run.
